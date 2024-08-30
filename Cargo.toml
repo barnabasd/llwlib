@@ -1,0 +1,13 @@
+[package]
+name = "llwlib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies.windows-sys]
+version = "*"
+features = [
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_LibraryLoader",
+    "Win32_Graphics_GdiPlus",
+    "Win32_Graphics_Gdi"
+]
