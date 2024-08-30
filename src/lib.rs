@@ -1,10 +1,10 @@
+use windows_sys::Win32::Graphics::Gdi::{InvalidateRect, COLOR_WINDOW, HBRUSH};
 use windows_sys::Win32::Foundation::{HWND, LPARAM, LRESULT, WPARAM};
 use windows_sys::Win32::System::LibraryLoader::GetModuleHandleW;
-use windows_sys::Win32::Graphics::Gdi::{InvalidateRect, COLOR_WINDOW, HBRUSH};
 use std::os::windows::ffi::OsStrExt; use std::ffi::OsStr;
-use std::ptr::null_mut;
 use windows_sys::Win32::UI::WindowsAndMessaging::*;
 use paint::{deinitialize_gdip, initialize_gdip};
+use std::ptr::null_mut;
 
 pub mod paint;
 
@@ -48,14 +48,15 @@ impl Window {
         unsafe {
             let gdiptoken = initialize_gdip();
             RegisterClassW(&WNDCLASSW {
+                lpszClassName: widestr(&properties.classname).as_ptr(),
                 hCursor: LoadCursorW(std::ptr::null_mut(), IDC_ARROW),
                 hInstance: GetModuleHandleW(std::ptr::null_mut()),
-                hIcon: std::ptr::null_mut(), style: properties.style.class,
                 hbrBackground: (COLOR_WINDOW + 1) as HBRUSH,
-                lpszClassName: widestr(&properties.classname).as_ptr(),
                 lpszMenuName: std::ptr::null_mut(),
+                style: properties.style.class,
                 cbClsExtra: 0, cbWndExtra: 0,
-                lpfnWndProc: Some(wnd_proc),
+                hIcon: std::ptr::null_mut(),
+                lpfnWndProc: Some(wnd_proc)
             });
             let hwnd = CreateWindowExW(
                 properties.style.exstyle,
