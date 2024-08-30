@@ -26,6 +26,7 @@ unsafe extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM)
 }
 
 pub type EventHandler = unsafe fn (hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM, state: isize) -> LRESULT;
+pub type SetupHandler = unsafe fn (hwnd: HWND);
 
 pub struct WindowStyles { pub class: u32, pub style: u32, pub exstyle: u32 }
 impl Default for WindowStyles { fn default() -> Self { Self { class: 0, style: WS_OVERLAPPEDWINDOW | WS_VISIBLE, exstyle: 0 } } }
@@ -42,6 +43,7 @@ impl Window {
     pub fn new<T>(
         properties: WindowProperties,
         event_handler: EventHandler,
+        setup_handler: Option<SetupHandler>,
         no_auto_event_handling: bool,
         mut state: T,
     ) {
@@ -71,7 +73,9 @@ impl Window {
                 GetModuleHandleW(std::ptr::null_mut()),
                 std::ptr::null_mut()
             );
-            let mut state = StateTransfer { noautohandle: no_auto_event_handling, handler: event_handler, state_ptr: &mut state as *mut T as isize };
+            if let Some(setup_handler) = setup_handler { setup_handler(hwnd); }
+            let mut state = StateTransfer { noautohandle: no_auto_event_handling,
+                handler: event_handler, state_ptr: &mut state as *mut T as isize };
             SetWindowLongPtrW(hwnd, GWLP_USERDATA, &mut state as *mut StateTransfer as isize);
             let mut msg: MSG = std::mem::zeroed();
             while GetMessageW(&mut msg, hwnd, 0, 0) > 0
