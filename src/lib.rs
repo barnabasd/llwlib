@@ -8,7 +8,7 @@ use std::ptr::null_mut;
 
 pub mod paint;
 
-pub(crate) fn widestr(str: &str) -> Vec<u16> { OsStr::new
+pub fn widestr(str: &str) -> Vec<u16> { OsStr::new
 (str).encode_wide().chain(Some(0).into_iter()).collect() }
 
 #[derive(Clone, Copy)]
@@ -42,7 +42,7 @@ impl Window {
     pub fn new<T>(
         properties: WindowProperties,
         event_handler: EventHandler,
-        disable_auto_event_handling: bool,
+        no_auto_event_handling: bool,
         mut state: T,
     ) {
         unsafe {
@@ -71,7 +71,7 @@ impl Window {
                 GetModuleHandleW(std::ptr::null_mut()),
                 std::ptr::null_mut()
             );
-            let mut state = StateTransfer { noautohandle: disable_auto_event_handling, handler: event_handler, state_ptr: &mut state as *mut T as isize };
+            let mut state = StateTransfer { noautohandle: no_auto_event_handling, handler: event_handler, state_ptr: &mut state as *mut T as isize };
             SetWindowLongPtrW(hwnd, GWLP_USERDATA, &mut state as *mut StateTransfer as isize);
             let mut msg: MSG = std::mem::zeroed();
             while GetMessageW(&mut msg, hwnd, 0, 0) > 0
