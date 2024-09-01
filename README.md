@@ -16,6 +16,7 @@ fn main() {
             size: (1200, 700)
         },
         wnd_proc,
+        None,
         false,
         ()
     );
