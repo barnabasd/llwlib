@@ -28,6 +28,9 @@ unsafe extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM)
 pub type EventHandler = unsafe fn (hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM, state: isize) -> LRESULT;
 pub type SetupHandler = unsafe fn (hwnd: HWND);
 
+const fn get_y_from_lparam(lp: LPARAM) -> i32 { ((lp>>16)&0xFFFF) as i32 }
+const fn get_x_from_lparam(lp: LPARAM) -> i32 { (lp&0xFFFF) as i32 }
+
 pub struct WindowStyles { pub class: u32, pub style: u32, pub exstyle: u32 }
 impl Default for WindowStyles { fn default() -> Self { Self { class: 0, style: WS_OVERLAPPEDWINDOW | WS_VISIBLE, exstyle: 0 } } }
 pub struct WindowProperties {

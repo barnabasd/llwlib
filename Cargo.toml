@@ -1,6 +1,6 @@
 [package]
 name = "llwlib"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "A costless windows api wrapper to create windows"
 repository = "https://github.com/barnabasd/llwlib"
