@@ -26,10 +26,10 @@ unsafe extern "system" fn wnd_proc(hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM)
 }
 
 pub type EventHandler = unsafe fn (hwnd: HWND, msg: u32, wp: WPARAM, lp: LPARAM, state: isize) -> LRESULT;
-pub type SetupHandler = unsafe fn (hwnd: HWND);
+pub type SetupHandler<T> = unsafe fn (hwnd: HWND, state: &mut T);
 
-const fn get_y_from_lparam(lp: LPARAM) -> i32 { ((lp>>16)&0xFFFF) as i32 }
-const fn get_x_from_lparam(lp: LPARAM) -> i32 { (lp&0xFFFF) as i32 }
+pub const fn get_y_from_lparam(lp: LPARAM) -> i16 { (lp >> 16) as i16 }
+pub const fn get_x_from_lparam(lp: LPARAM) -> i16 { lp as i16 }
 
 pub struct WindowStyles { pub class: u32, pub style: u32, pub exstyle: u32 }
 impl Default for WindowStyles { fn default() -> Self { Self { class: 0, style: WS_OVERLAPPEDWINDOW | WS_VISIBLE, exstyle: 0 } } }
@@ -46,7 +46,7 @@ impl Window {
     pub fn new<T>(
         properties: WindowProperties,
         event_handler: EventHandler,
-        setup_handler: Option<SetupHandler>,
+        setup_handler: Option<SetupHandler<T>>,
         no_auto_event_handling: bool,
         mut state: T,
     ) {
@@ -76,7 +76,7 @@ impl Window {
                 GetModuleHandleW(std::ptr::null_mut()),
                 std::ptr::null_mut()
             );
-            if let Some(setup_handler) = setup_handler { setup_handler(hwnd); }
+            if let Some(setup_handler) = setup_handler { setup_handler(hwnd, &mut state); }
             let mut state = StateTransfer { noautohandle: no_auto_event_handling,
                 handler: event_handler, state_ptr: &mut state as *mut T as isize };
             SetWindowLongPtrW(hwnd, GWLP_USERDATA, &mut state as *mut StateTransfer as isize);
